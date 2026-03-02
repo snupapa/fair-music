@@ -1,6 +1,6 @@
 'use client'
 
-import { deletePost } from '@/lib/posts'
+import { deletePost, toggleSave } from '@/lib/posts'
 import { supabase } from '@/lib/supabase'
 import { useState } from 'react'
 import MusicPlayer from '@/components/MusicPlayer'
@@ -54,7 +54,7 @@ export default function PostCard({
   }
 
   return (
-    <div className="space-y-3">
+    <div id={`post-${post.id}`} className="space-y-3">
       <div className="flex items-end justify-between space-x-1">
         <h2 className="text-base font-medium leading-tight break-all line-clamp-2">
           {post.title}
@@ -99,8 +99,19 @@ export default function PostCard({
       <div className="flex items-center justify-between text-sm text-neutral-500 leading-none">
         <span>comments</span>
 
-        {post.type === 'audio' && currentUser?.id !== post.user_id && (
-          <button onClick={handleSave}>{saving ? 'saving...' : 'save'}</button>
+        {currentUser?.id !== post.user_id && post.type === 'audio' && (
+          <button
+            onClick={async () => {
+              try {
+                await toggleSave(post.id)
+              } catch {
+                window.location.href = '/auth'
+              }
+            }}
+            className="hover:text-white transition"
+          >
+            save
+          </button>
         )}
 
         {currentUser?.id === post.user_id && (
